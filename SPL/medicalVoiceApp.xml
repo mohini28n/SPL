@@ -1,0 +1,1496 @@
+<vxml version = "2.1">
+<meta name="maintainer" content="your_email_address@wherever.com" />
+
+<var name="flag_id" expr="'id'" />
+<var name="flag_bg" expr="'bg'" />
+<var name="flag_temp" expr="'temp'" />
+<var name="flag_pulse" expr="'pulseRate'" />
+<var name="flag_bp" expr="'bloodPressure'" />
+<var name="flag_resp" expr="'respiratoryRate'" />
+<var name="flag_oxy" expr="'oxy'" />
+<var name="flag_pain" expr="'pain'" />
+<var name="flag_date" expr="'id'" />
+
+
+<form id="welcome">
+
+
+
+   <block>
+   <script>
+    <![CDATA[
+     function getDate()
+     {
+		var today = new Date();
+		var dd = today.getDate();
+		var mm = today.getMonth()+1; 
+		var yyyy = today.getFullYear();
+		return dd+" "+mm+" "+yyyy;
+     }
+     ]]>
+   </script>
+ <assign name = "flag_date" expr = "getDate()" />
+  
+  
+  </block>
+<field name="start" >
+<grammar xml:lang="en-us" root="myrule">
+<rule id="myrule">
+<one-of>
+<item>Yes</item>
+<item>No</item>
+</one-of>
+</rule>
+</grammar>
+
+  <prompt>
+  Welcome to the Medical App. Do you need assistance?
+  </prompt>
+ 
+ 
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+  
+   <nomatch>
+   <prompt>
+    Its not a valid entry. Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+  <filled namelist="start" mode="all">
+  <if cond="start=='Yes'">
+  <goto next="#idForm" />
+ <else/>
+   <goto next= "#DirectNavigation" /> 
+</if>
+</filled>
+</form>
+
+
+
+
+
+<form id="DirectNavigation">
+   <field name="entry" >
+<grammar xml:lang="en-us" root="myrule">
+<rule id="myrule">
+<one-of>
+<item>ID</item>
+<item>Temperature</item>
+<item>Blood Pressure</item>
+<item>Glucose Level</item>
+<item>Pulse Rate</item>
+<item>Pain Rate</item>
+<item>Respiratory Rate</item>
+<item>Oxygen Level</item>
+<item>Complete</item>
+<item>Exit</item>
+</one-of>
+</rule>
+</grammar>
+
+  <prompt>
+  What do you want to enter?
+  </prompt>
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+  </field>
+  <filled namelist="entry" mode="all">
+  <if cond="entry=='ID'">
+	<goto next="#idFormDirect" />
+	
+	<elseif cond="entry=='Temperature'"/>
+   <goto next="#tempFormDirect" />
+  
+   <elseif cond="entry=='Blood Pressure'"/>
+   <goto next="#bloodPressureFormDirect" />
+  
+   <elseif cond="entry=='Glucose Level'"/>
+   <goto next="#BGlevelFormDirect" />
+  
+   <elseif cond="entry=='Pulse Rate'"/>
+   <goto next="#pulseRateFormDirect" />
+  
+   <elseif cond="entry=='Pain Rate'"/>
+   <goto next="#painFormDirect" />
+   
+   <elseif cond="entry=='Respiratory Rate'"/>
+   <goto next="#respiratoryFormDirect" />
+  
+   <elseif cond="entry=='Oxygen Level'"/>
+   <goto next="#OxySatFormDirect" />
+   <elseif cond="entry=='Complete'"/>
+   <prompt>
+	All your entries are recorded. Goodbye!
+	</prompt>
+	<elseif cond="entry=='Exit'"/>
+   <prompt>
+	Application exiting. Goodbye!
+	</prompt>
+	</if>
+</filled>
+</form>
+
+
+
+
+
+
+
+
+
+<form id="idForm">
+  <field name="id" >
+   
+  <prompt>
+   Enter Patient's I D.
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number" type="grammar-xml">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" type="grammar-xml" />
+	 
+	 
+	 
+ <grammar xml:lang="en-us" root="myrule">
+<rule id="myrule">
+<one-of>
+<item> Skip </item>
+<item> Exit </item>
+</one-of>
+</rule>
+</grammar>
+
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+   That is not number. Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="id" mode="all">
+  <if cond="id=='Skip'">
+  <goto next="#tempForm" />
+ <else/>
+	<assign name = "flag_id" expr = "id" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "id &gt; 100">
+		<prompt>
+					I D  entered is too high.     Please enter again.
+		</prompt>
+			<goto next = "#idForm" />
+				<elseif cond = "id &lt; 10"/>
+				<prompt>
+					I D entered is too low.     Please enter again.
+				</prompt>
+				<goto next = "#idForm" />
+				</if>
+   <prompt>
+    You said <value expr="id" />. 
+   </prompt>
+   <goto next="#idCheck" />
+   </if>
+  </filled>
+</form>
+<form id="idCheck">
+   <field name="confirm" slot="confirm">
+ 
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#idForm" />
+   <elseif cond="confirm == 'yes'" />
+       <goto next="#tempForm" />
+   </if>
+  </filled>
+</form>
+
+<!-- Direct navigation which user dictates-->
+
+<form id="idFormDirect">
+  <field name="id" >
+   
+  <prompt>
+   Enter Patient's I D.
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" />
+	 
+	 
+	 
+ <grammar xml:lang="en-us" root="myrule">
+<rule id="myrule">
+<one-of>
+<item> Skip </item>
+<item> Exit </item>
+</one-of>
+</rule>
+</grammar>
+
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+    It is not a number.    Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="id" mode="all">
+	<assign name = "flag" expr = "id" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "id &gt; 100">
+		<prompt>
+					I D entered is too high.     please enter again.
+		</prompt>
+			<goto next = "#idFormDirect" />
+				<elseif cond = "id &lt; 10"/>
+				<prompt>
+					I D entered is too low .     please enter again.
+				</prompt>
+				<goto next = "#idFormDirect" />
+				</if>
+  
+   <prompt>
+    You said <value expr="id" />. 
+   </prompt>
+   <goto next="#idCheckDirect" />
+   
+  </filled>
+</form>
+<form id="idCheckDirect">
+   <field name="confirm" slot="confirm">
+ 
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#idFormDirect" />
+   <elseif cond="confirm == 'yes'" />
+   <prompt>
+	Enter next entry
+	</prompt>
+       <goto next="#DirectNavigation" />
+   </if>
+  </filled>
+</form>
+
+
+
+
+
+
+
+
+
+
+
+<form id="tempForm">
+  <field name="temp" >
+   
+  <prompt>
+   Enter Temperature in Fahrenheit.
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number" type="grammar-xml">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" type="grammar-xml"/>
+
+	  
+ <grammar xml:lang="en-us" root="myrule">
+<rule id="myrule">
+<one-of>
+<item> Skip </item>
+<item> Exit </item>
+</one-of>
+</rule>
+</grammar>
+
+
+ 
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+    It is not a number.   Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="temp" mode="all">
+ <if cond="temp=='Skip'">
+  <goto next="#bloodPressureForm" />
+ <else/>
+	<assign name = "flag" expr = "temp" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "temp &gt; 110">
+		<prompt>
+				Temperature entered is too high.      please enter again.
+		</prompt>
+			<goto next = "#tempForm" />
+				<elseif cond = "temp &lt; 95"/>
+				<prompt>
+					Temperature entered is too low.      please enter again.
+				</prompt>
+				<goto next = "#tempForm" />
+				</if>
+   <prompt>
+    You said <value expr="temp" /> Fahrenheit. 
+   </prompt>
+   <goto next="#tempCheck" />
+   </if>
+  </filled>
+</form>
+<form id="tempCheck">
+   <field name="confirm" slot="confirm">
+ 
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#tempForm" />
+   <elseif cond="confirm == 'yes'" />
+       <goto next="#bloodPressureForm" />
+   </if>
+  </filled>
+</form>
+
+
+
+
+
+
+<form id="tempFormDirect">
+  <field name="temp" >
+   
+  <prompt>
+   Enter Temperature in Fahrenheit.
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" />
+
+
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+    Is that a number? Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="temp" mode="all">
+  <assign name = "flag" expr = "temp" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "temp &gt; 110">
+		<prompt>
+				Temperature entered is too high.     please enter again.
+		</prompt>
+			<goto next = "#tempFormDirect" />
+				<elseif cond = "temp &lt; 95"/>
+				<prompt>
+					Temperature entered is too low.     please enter again.
+				</prompt>
+				<goto next = "#tempFormDirect" />
+				</if>
+ 
+   <prompt>
+    You said <value expr="temp" /> Fahrenheit. 
+   </prompt>
+   <goto next="#tempCheckDirect" />
+   
+  </filled>
+</form>
+<form id="tempCheckDirect">
+   <field name="confirm" slot="confirm">
+ 
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#tempFormDirect" />
+   <elseif cond="confirm == 'yes'" />
+       <prompt>
+   Enter next entry.
+  </prompt>
+	   <goto next="#DirectNavigation" />
+   </if>
+  </filled>
+</form>
+
+
+
+
+
+
+
+<form id="bloodPressureForm">
+  <field name="bloodPressure" >
+   
+  <prompt>
+   Enter blood pressure in mmHg
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number" type="grammar-xml">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" type="grammar-xml"/>
+
+	 <grammar xml:lang="en-us" root="myrule">
+<rule id="myrule">
+<one-of>
+<item> Skip </item>
+<item> Exit </item>
+</one-of>
+</rule>
+</grammar>
+
+ 
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+   It is not a number. Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="bloodPressure" mode="all">
+  <if cond="bloodPressure=='Skip'">
+  <goto next="#pulseRateForm" />
+ <else/>
+ <assign name = "flag_bp" expr = "bloodPressure" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "bloodPressure &gt; 200">
+		<prompt>
+				Blood Pressure entered is too high.      please enter again.
+		</prompt>
+			<goto next = "#bloodPressureForm" />
+				<elseif cond = "bloodPressure &lt; 40"/>
+				<prompt>
+					Blood Pressure entered is too low.      please enter again.
+				</prompt>
+				<goto next = "#bloodPressureForm" />
+				</if>
+   <prompt>
+    You said <value expr="bloodPressure" /> mmHg. 
+  </prompt>
+  <goto next="#bloodPressureCheck" />
+  </if>
+  </filled>
+</form>
+<form id="bloodPressureCheck">
+   <field name="confirm" slot="confirm">
+ 
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#bloodPressureForm" />
+   <elseif cond="confirm == 'yes'" />
+       <goto next="#pulseRateForm" />
+   </if>
+  </filled>
+</form>
+
+
+<form id="bloodPressureFormDirect">
+  <field name="bloodPressure" >
+   
+  <prompt>
+   Enter blood pressure in mmHg
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" />
+
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+   It is not a number. Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="bloodPressure" mode="all">
+  <assign name = "flag_bp" expr = "bloodPressure" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "bloodPressure &gt; 200">
+		<prompt>
+				Blood Pressure entered is too high.    please enter again.
+		</prompt>
+			<goto next = "#bloodPressureFormDirect" />
+				<elseif cond = "bloodPressure &lt; 40"/>
+				<prompt>
+					Blood Pressure entered is too low.    please enter again.
+				</prompt>
+				<goto next = "#bloodPressureFormDirect" />
+				</if>
+  
+   <prompt>
+    You said <value expr="bloodPressure" /> mmHg. 
+  </prompt>
+  <goto next="#bloodPressureCheckDirect" />
+  
+  </filled>
+</form>
+<form id="bloodPressureCheckDirect">
+   <field name="confirm" slot="confirm">
+ 
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#bloodPressureFormDirect" />
+   <elseif cond="confirm == 'yes'" />
+   <prompt>
+	Enter next entry
+	</prompt>
+       <goto next="#DirectNavigation" />
+   </if>
+  </filled>
+</form>
+
+<form id="pulseRateForm">
+  <field name="pulseRate" >
+   
+  <prompt>
+   Enter pulse rate in beats per minute
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number" type="grammar-xml">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" type="grammar-xml" />
+	 
+	 <grammar xml:lang="en-us" root="myrule">
+<rule id="myrule">
+<one-of>
+<item> Skip </item>
+<item> Exit </item>
+</one-of>
+</rule>
+</grammar>
+ 
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+       It is not a number. Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="pulseRate" mode="all">
+  <if cond="pulseRate=='Skip'">
+  <goto next="#respiratoryForm" />
+ <else/>
+  <assign name = "flag_pulse" expr = "pulseRate" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "pulseRate &gt; 160">
+		<prompt>
+				Pulse rates entered is too high.       please enter again.
+		</prompt>
+			<goto next = "#pulseRateForm" />
+				<elseif cond = "pulseRate &lt; 40"/>
+				<prompt>
+				pulse rare entered is too low.     please enter again.
+				</prompt>
+				<goto next = "#pulseRateForm" />
+				</if>
+   <prompt>
+    You said <value expr="pulseRate" /> beats per minute. 
+  </prompt>
+   <goto next="#pulseRateCheck" /></if>
+  </filled>
+</form>
+<form id="pulseRateCheck">
+   <field name="confirm" slot="confirm">
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#pulseRateForm" />
+   <elseif cond="confirm == 'yes'" />
+       <goto next="#respiratoryForm" />
+   </if>
+  </filled>
+</form>
+
+<form id="pulseRateFormDirect">
+  <field name="pulseRate" >
+   
+  <prompt>
+   Enter pulse rate in beats per minute
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" />
+ 
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+       It is not a number. Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="pulseRate" mode="all">
+  <assign name = "flag_pulse" expr = "pulseRate" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "pulseRate &gt; 160">
+		<prompt>
+				Pulse rates entered is too high.     please enter again.
+		</prompt>
+			<goto next = "#pulseRateFormDirect" />
+				<elseif cond = "pulseRate &lt; 40"/>
+				<prompt>
+				pulse rare entered is too low.    please enter again.
+				</prompt>
+				<goto next = "#pulseRateFormDirect" />
+				</if>
+ 
+   <prompt>
+    You said <value expr="pulseRate" /> beats per minute. 
+  </prompt>
+   <goto next="#pulseRateCheckDirect" />
+  </filled>
+</form>
+<form id="pulseRateCheckDirect">
+   <field name="confirm" slot="confirm">
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#pulseRateFormDirect" />
+   <elseif cond="confirm == 'yes'" />
+    <prompt>
+    Enter next entry
+  </prompt>
+       <goto next="#DirectNavigation" />
+   </if>
+  </filled>
+</form>
+
+
+<form id="respiratoryForm">
+  <field name="respiratoryRate" >
+   
+  <prompt>
+   Enter respiratory Rate in breaths per minute
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number" type="grammar-xml">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" type="grammar-xml"/>
+	 <grammar xml:lang="en-us" root="myrule">
+<rule id="myrule">
+<one-of>
+<item> Skip </item>
+<item> Exit </item>
+</one-of>
+</rule>
+</grammar>
+ 
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+       It is not a number.   Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="respiratoryRate" mode="all">
+  <if cond="respiratoryRate=='Skip'">
+  <goto next="#painForm" />
+ <else/>
+ <assign name = "flag_resp" expr = "respiratoryRate" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "respiratoryRate &gt; 70">
+		<prompt>
+				respiratory Rate entered is too high.    please enter again.
+		</prompt>
+			<goto next = "#respiratoryForm" />
+				<elseif cond = "respiratoryRate &lt; 10"/>
+				<prompt>
+				respiratory Rate entered is too low.     please enter again.
+				</prompt>
+				<goto next = "#respiratoryForm" />
+				</if>
+   <prompt>
+    You said <value expr="respiratoryRate" /> breaths per minute. 
+  </prompt>
+   <goto next="#respiratoryRateCheck" /></if>
+  </filled>
+</form>
+<form id="respiratoryRateCheck">
+   <field name="confirm" slot="confirm">
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#respiratoryRateForm" />
+   <elseif cond="confirm == 'yes'" />
+   <goto next="#painForm" />
+   </if>
+  </filled>
+</form>
+
+
+<form id="respiratoryFormDirect">
+  <field name="respiratoryRate" >
+   
+  <prompt>
+   Enter respiratory Rate in breaths per minute
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" />
+	
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+       It is not a number. Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="respiratoryRate" mode="all">
+   <assign name = "flag_resp" expr = "respiratoryRate" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "respiratoryRate &gt; 70">
+		<prompt>
+				respiratory Rate entered is too high.    please enter again.
+		</prompt>
+			<goto next = "#respiratoryFormDirect" />
+				<elseif cond = "respiratoryRate &lt; 10"/>
+				<prompt>
+				respiratory Rate entered is too low.     please enter again.
+				</prompt>
+				<goto next = "#respiratoryFormDirect" />
+				</if>
+ 
+   <prompt>
+    You said <value expr="respiratoryRate" /> breaths per minute. 
+  </prompt>
+   <goto next="#respiratoryRateCheckDirect" />
+  </filled>
+</form>
+<form id="respiratoryRateCheckDirect">
+   <field name="confirm" slot="confirm">
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#respiratoryFormDirect" />
+   <elseif cond="confirm == 'yes'" />
+   <prompt>
+    Enter next entry. 
+  </prompt>
+   <goto next="#DirectNavigation" />
+   </if>
+  </filled>
+</form>
+
+
+
+<form id="painForm">
+  <field name="pain" >
+   
+  <prompt>
+   Enter pain, on basis of scale 1 to 10.
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number" type="grammar-xml">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" type="grammar-xml"/>
+	 <grammar xml:lang="en-us" root="myrule">
+<rule id="myrule">
+<one-of>
+<item> Skip </item>
+<item> Exit </item>
+</one-of>
+</rule>
+</grammar>
+ 
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+       It is not a number. Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="pain" mode="all">
+  <if cond="pain=='Skip'">
+  <goto next="#OxySatForm" />
+ <else/>
+<assign name = "flag_pain" expr = "pain" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "pain &gt; 10">
+		<prompt>
+				Pain value entered too high.    please enter again.
+		</prompt>
+			<goto next = "#painForm" />
+				<elseif cond = "pain &lt; 1"/>
+				<prompt>
+				Pain entered is too low.     please enter again.
+				</prompt>
+				<goto next = "#painForm" />
+				</if>
+   <prompt>
+    You said <value expr="pain" />. 
+   </prompt>
+   <goto next="#painCheck" /></if>
+  </filled>
+</form>
+<form id="painCheck">
+   <field name="confirm" slot="confirm">
+ 
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#painForm" />
+   <elseif cond="confirm == 'yes'" />
+       <goto next="#OxySatForm" />
+   </if>
+  </filled>
+</form>
+
+
+
+<form id="painFormDirect">
+  <field name="pain" >
+   
+  <prompt>
+   Enter pain on basis of scale 1 to 10. 
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" />
+	 
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+       It is not a number. Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="pain" mode="all">
+  <assign name = "flag_pain" expr = "pain" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "pain &gt; 10">
+		<prompt>
+				Pain value entered too high.    please enter again.
+		</prompt>
+			<goto next = "#painFormDirect" />
+				<elseif cond = "pain &lt; 1"/>
+				<prompt>
+				Pain entered is too low.     please enter again.
+				</prompt>
+				<goto next = "#painFormDirect" />
+				</if>
+  
+   <prompt>
+    You said <value expr="pain" />. 
+   </prompt>
+   <goto next="#painCheckDirect" />
+  </filled>
+</form>
+<form id="painCheckDirect">
+   <field name="confirm" slot="confirm">
+ 
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#painFormDirect" />
+   <elseif cond="confirm == 'yes'" />
+       <prompt>
+	   Enter next entry
+	   </prompt>
+	   <goto next="#DirectNavigation" />
+	   
+   </if>
+  </filled>
+</form>
+
+
+
+
+<form id="OxySatForm">
+  <field name="oxy" >
+   
+  <prompt>
+   Enter oxygen saturation value in percentage.
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number" type="grammar-xml">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" type="grammar-xml" />
+	 <grammar xml:lang="en-us" root="myrule">
+<rule id="myrule">
+<one-of>
+<item> Skip </item>
+<item> Exit </item>
+</one-of>
+</rule>
+</grammar>
+ 
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+    Is that a number? Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="oxy" mode="all">
+<if cond="oxy=='Skip'">
+  <goto next="#BGlevelForm" />
+ <else/>
+ <assign name = "flag_oxy" expr = "oxy" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "oxy &gt; 100">
+		<prompt>
+				Oxygen saturation is greater than expected value.     please enter again.
+		</prompt>
+			<goto next = "#OxySatForm" />
+				<elseif cond = "oxy &lt; 70"/>
+				<prompt>
+				Onxygen saturation is less than expected value.    please enter again.
+				</prompt>
+				<goto next = "#OxySatForm" />
+				</if>
+   <prompt>
+    You said <value expr="oxy" /> percentage.
+   </prompt>
+   <goto next="#oxyCheck" /></if>
+  </filled>
+</form>
+<form id="oxyCheck">
+   <field name="confirm" slot="confirm">
+ 
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#OxySatForm" />
+   <elseif cond="confirm == 'yes'" />
+       <goto next="#BGlevelForm" />
+   </if>
+  </filled>
+</form>
+
+
+<form id="OxySatFormDirect">
+  <field name="oxy" >
+   
+  <prompt>
+   Enter oxygen saturation in  percentage
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" />
+	 
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+    Is that a number? Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="oxy" mode="all">
+  <assign name = "flag_oxy" expr = "oxy" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "oxy &gt; 100">
+		<prompt>
+				Onxygen saturation is greater than noraml one    please enter again.
+		</prompt>
+			<goto next = "#OxySatFormDirect" />
+				<elseif cond = "oxy &lt; 70"/>
+				<prompt>
+				Onxygen saturation is greater than noraml one    please enter again.
+				</prompt>
+				<goto next = "#OxySatFormDirect" />
+				</if>
+
+   <prompt>
+    You said <value expr="oxy" /> milligrams per litre.
+   </prompt>
+   <goto next="#oxyCheckDirect" />
+  </filled>
+</form>
+<form id="oxyCheckDirect">
+   <field name="confirm" slot="confirm">
+ 
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#OxySatFormDirect" />
+   <elseif cond="confirm == 'yes'" />
+   <prompt>
+	Enter next entry.
+   </prompt>
+       <goto next="#DirectNavigation" />
+   </if>
+  </filled>
+</form>
+
+
+
+
+<form id="BGlevelForm">
+  <field name="bg" >
+   
+  <prompt>
+   Enter blood glucose in mg/dL.
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number" type="grammar-xml">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" type="grammar-xml" />
+ 
+ <grammar xml:lang="en-us" root="myrule">
+<rule id="myrule">
+<one-of>
+<item> Skip </item>
+<item> Exit </item>
+</one-of>
+</rule>
+</grammar>
+
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+    It is not a number.   Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="bg" mode="all">
+  <if cond="bg=='Skip'">
+  <goto next="#finalForm" />
+ <else/>
+ <assign name = "flag_bg" expr = "bg" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "bg &gt; 200">
+		<prompt>
+				Blood Glucose is greter than normal one    please enter again.
+		</prompt>
+			<goto next = "#BGlevelForm" />
+				<elseif cond = "bg &lt; 30"/>
+				<prompt>
+				Blood Glucose is less than normal one    please enter again.
+				</prompt>
+				<goto next = "#BGlevelForm" />
+				</if>
+   <prompt>
+    You said <value expr="bg" /> mg/dL.
+   </prompt>
+   <goto next="#bgCheck" /></if>
+  </filled>
+</form>
+<form id="bgCheck">
+   <field name="confirm" slot="confirm">
+ 
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#BGlevelForm" />
+   <elseif cond="confirm == 'yes'" />
+ <goto next="#finalForm" />
+   </if>
+  </filled>
+</form>
+
+
+<form id="BGlevelFormDirect">
+  <field name="bg" >
+   
+  <prompt>
+   Enter blood glucose in mg/dL.
+  </prompt>
+ 
+     <grammar src= "builtin:grammar/number">
+	 </grammar>
+	 <grammar src="builtin:dtmf/number" />
+ 
+ 
+  <noinput>
+   <prompt>
+    I did not hear you. Please try again.
+   </prompt>
+   <reprompt/>
+  </noinput>
+ 
+  <nomatch>
+   <prompt>
+ It is not a number.    Please try again.
+   </prompt>
+   <reprompt/>
+  </nomatch>
+  </field>
+ 
+  <filled namelist="bg" mode="all">
+  <assign name = "flag_bg" expr = "bg" />
+	<assign name = "flag2" expr = "1" />
+		<if cond = "bg &gt; 200">
+		<prompt>
+				Blood Glucose is greater than normal one    please enter again.
+		</prompt>
+			<goto next = "#BGlevelFormDirect" />
+				<elseif cond = "bg &lt; 30"/>
+				<prompt>
+				Blood Glucose is greater than normal one    please enter again.
+				</prompt>
+				<goto next = "#BGlevelFormDirect" />
+				</if>
+ 
+   <prompt>
+    You said <value expr="bg" /> mg/dL.
+   </prompt>
+   <goto next="#bgCheckDirect" />
+  </filled>
+</form>
+<form id="bgCheckDirect">
+   <field name="confirm" slot="confirm">
+ 
+   <grammar xml:lang="en-US" root = "RESPONSE">
+    <rule id="RESPONSE">
+     <one-of>
+       <item> yes </item>
+       <item> no </item>
+     </one-of>
+    </rule>
+   </grammar>
+    <prompt bargein="false">
+      Is it right?
+    </prompt>
+   </field>
+ 
+  <filled namelist="confirm" mode="all">
+   <if cond="confirm == 'no'">
+     <goto next="#BGlevelFormDirect" />
+   <elseif cond="confirm == 'yes'" />
+       <goto next="#finalForm" />
+   </if>
+  </filled>
+</form>
+
+
+
+<form id="finalForm">
+<block>
+<prompt>
+ 
+Today is <value expr="flag_date"/>
+Patient ID is <value expr="flag_id"/>.
+Temperature is <value expr="flag_temp"/>.
+
+Blood pressure is <value expr="flag_bp"/>.
+Pain level is <value expr="flag_pain" />.
+Respiratory rate is <value expr="flag_resp"/>.
+Oxygen Saturation percentage is <value expr="flag_oxy"/>.
+Blood glucose level is <value expr="flag_bg"/>.
+Pulse rate is <value expr="flag_pulse"/>.
+
+Completed. Thank you.
+ 
+</prompt>
+</block>
+</form>
+
+
+
+
+
+</vxml>
